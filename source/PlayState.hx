@@ -18,6 +18,7 @@ import openfl.net.URLRequest;
 import openfl.utils.ByteArray;
 
 using StringTools;
+
 #if sys
 import sys.FileSystem;
 import sys.io.File;
@@ -30,6 +31,7 @@ class PlayState extends FlxState
 
 	var play:FlxButton;
 	var version:FlxUIDropDownMenuCustom;
+	var credits:FlxButton;
 
 	public var online_url:String = "";
 
@@ -67,6 +69,12 @@ class PlayState extends FlxState
 		play.screenCenter(Y);
 		add(play);
 
+		credits = new FlxButton(play.x + 200, play.y, "CREDITS", function()
+		{
+			FlxG.switchState(new CreditsState());
+		});
+		add(credits);
+
 		version = new FlxUIDropDownMenuCustom(0, 0, FlxUIDropDownMenuCustom.makeStrIdLabelArray(["Loading..."], true));
 		version.screenCenter();
 		add(version);
@@ -87,11 +95,17 @@ class PlayState extends FlxState
 
 		http.request();
 
+		#if sys
 		zip = new URLLoader();
 		zip.dataFormat = BINARY;
 		zip.addEventListener(openfl.events.Event.COMPLETE, unzipGame);
+		#end
 
-		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: READY', 20);
+		#if sys
+		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: READY', 15);
+		#else
+		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: FAILED', 15);
+		#end
 		downloadText.alignment = RIGHT;
 		downloadText.y = FlxG.height - (downloadText.height + 5);
 		add(downloadText);
@@ -127,12 +141,11 @@ class PlayState extends FlxState
 			trace(e);
 		}
 
-
 		var batch = "@echo on\n";
 		batch += "setlocal enabledelayedexpansion\r\n";
 		batch += 'cd $versionsPath\r\n';
 		batch += "start UniverseEngine.exe\r\n";
-		//batch += "endlocal";
+		// batch += "endlocal";
 
 		File.saveContent(haxe.io.Path.join([versionsPath, "start.bat"]), batch);
 

@@ -1,32 +1,29 @@
 package;
 
 import animateatlas.AtlasFrameMaker;
-import flixel.math.FlxPoint;
-import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
-import openfl.geom.Rectangle;
-import flixel.math.FlxRect;
-import haxe.xml.Access;
-import openfl.system.System;
+import flash.media.Sound;
 import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.animation.FlxAnimationController;
+import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
+import flixel.graphics.frames.FlxFramesCollection;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import haxe.Json;
+import haxe.xml.Access;
+import lime.utils.Assets;
+import openfl.display.BitmapData;
+import openfl.geom.Rectangle;
+import openfl.system.System;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
-import lime.utils.Assets;
-import flixel.FlxSprite;
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
-import flixel.graphics.FlxGraphic;
-import openfl.display.BitmapData;
-import haxe.Json;
-
-import flash.media.Sound;
-
-import flixel.graphics.frames.FlxFramesCollection;
-import flixel.animation.FlxAnimationController;
-
 using StringTools;
+#if sys
+import sys.FileSystem;
+import sys.io.File;
+#end
 
 class Paths
 {
@@ -57,36 +54,6 @@ class Paths
 		'achievements'
 	];
 	#end
-
-	public static var defaultSkin = 'NOTE_assets' + Note.getNoteSkinPostfix(); 
-	//Function that initializes the first note. This way, we can recycle the notes
-	public static function initDefaultSkin(?noteSkin:String, ?inEditor:Bool = false)
-	{
-		trace(noteSkin);
-		if (noteSkin.length > 0) defaultSkin = noteSkin;
-		else if (!PlayState.isPixelStage) defaultSkin = 'NOTE_assets' + Note.getNoteSkinPostfix();
-		else defaultSkin = 'NOTE_assets';
-		trace(defaultSkin);
-	}
-
-	public static function initNote(keys:Int = 4, ?noteSkin:String)
-		{
-			// Do this to be able to just copy over the note animations and not reallocate it
-			if (noteSkin.length < 1) noteSkin = defaultSkin;
-			var spr:FlxSprite = new FlxSprite();
-			spr.frames = getSparrowAtlas(noteSkin.length > 1 ? noteSkin : defaultSkin);
-	
-			// Use a for loop for adding all of the animations in the note spritesheet, otherwise it won't find the animations for the next recycle
-			for (d in 0...keys)
-			{
-				spr.animation.addByPrefix('purpleholdend', 'pruple end hold'); // ?????
-				spr.animation.addByPrefix(Note.colArray[d] + 'holdend', Note.colArray[d] + ' hold end');
-				spr.animation.addByPrefix(Note.colArray[d] + 'hold', Note.colArray[d] + ' hold piece');
-				spr.animation.addByPrefix(Note.colArray[d] + 'Scroll', Note.colArray[d] + '0');
-			}
-			noteSkinFramesMap.set(noteSkin, spr.frames);
-			noteSkinAnimsMap.set(noteSkin, spr.animation);
-		}
 
 	public static function excludeAsset(key:String) {
 		if (!dumpExclusions.contains(key))
