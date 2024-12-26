@@ -51,6 +51,7 @@ class PlayState extends FlxState
 
 		bg = new FlxSprite(0, 0).loadGraphic("assets/images/bg.png");
 		bg.screenCenter();
+		bg.setGraphicSize(bg.width * 1.5);
 		add(bg);
 
 		progBar_bg = new FlxSprite(FlxG.width / 2, FlxG.height / 2 + 50).makeGraphic(500, 20, FlxColor.BLACK);
