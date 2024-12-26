@@ -133,7 +133,14 @@ class PlayState extends FlxState
 			// trace(versionsPath + '/Universe Engine 0.1.0/');
 			if (version.selectedLabel == "0.1.0")
 			{
-				FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				try
+				{
+					FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				}
+				catch (e:Dynamic)
+				{
+					var yuh:String = 'yuh'; // lmao.
+				}
 				versionsPath += '/ue1';
 			}
 		}
@@ -170,7 +177,13 @@ class PlayState extends FlxState
 		}
 		else
 		{
-			if (!FileSystem.exists('./versions/${version.selectedLabel}/UniverseEngine.exe'))
+			var addition:String = '';
+			if (version.selectedLabel == '0.1.0')
+			{
+				addition = '/ue1';
+			}
+			var path = './versions/${version.selectedLabel + addition}/UniverseEngine.exe';
+			if (!FileSystem.exists(path))
 			{
 				trace('Likely malformed folder! Re-Installing');
 				installGame();
