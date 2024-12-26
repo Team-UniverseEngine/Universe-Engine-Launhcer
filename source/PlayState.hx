@@ -113,6 +113,20 @@ class PlayState extends FlxState
 		var exeDir = haxe.io.Path.directory(exePath);
 		var versionPath = haxe.io.Path.directory("/versions/");
 		var versionsPath = haxe.io.Path.directory(exeDir + versionPath + versionNumber);
+		try
+		{
+			trace(versionsPath + '/Universe Engine 0.1.0/');
+			if (version.selectedLabel == "0.1.0")
+			{
+				FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				versionsPath += '/ue1';
+			}
+		}
+		catch (e:Dynamic)
+		{
+			trace(e);
+		}
+
 
 		var batch = "@echo on\n";
 		batch += "setlocal enabledelayedexpansion\r\n";
