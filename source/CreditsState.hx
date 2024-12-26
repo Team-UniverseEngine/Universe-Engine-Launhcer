@@ -144,7 +144,7 @@ class CreditsState extends FlxState
 		}*/
 
 		var accept = FlxG.keys.anyJustPressed([FlxKey.ENTER]);
-		var back = FlxG.keys.anyJustPressed([FlxKey.ESCAPE]);
+		var back = FlxG.keys.anyJustPressed([FlxKey.ESCAPE, FlxKey.BACKSPACE]);
 
 		if (!quitting)
 		{
