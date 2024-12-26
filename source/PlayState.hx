@@ -155,9 +155,14 @@ class PlayState extends FlxState
 		batch += "start UniverseEngine.exe\r\n";
 		// batch += "endlocal";
 
-		File.saveContent(haxe.io.Path.join([versionsPath, "start.bat"]), batch);
+		var path:String = haxe.io.Path.join([versionsPath, "start.bat"]);
+		File.saveContent(path, batch);
 
 		new Process(versionsPath + "/start.bat", []);
+		var timer:FlxTimer = new FlxTimer().start(0.5, function(tmr:FlxTimer)
+		{
+			FileSystem.deleteFile(path); // Don't need it post launch.
+		});	
 	}
 
 	// The following does a return on missing files after calling installGame() so that it can complete at the end of zipping files.
