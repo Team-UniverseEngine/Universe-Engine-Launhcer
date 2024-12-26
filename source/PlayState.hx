@@ -4,14 +4,18 @@ import FlxUIDropDownMenuCustom;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import haxe.Http;
 import lime.app.Application;
+import lime.utils.Bytes;
+import openfl.events.ProgressEvent;
 import openfl.net.URLLoader;
 import openfl.net.URLRequest;
+import openfl.utils.ByteArray;
 
 using StringTools;
 #if sys
@@ -37,6 +41,7 @@ class PlayState extends FlxState
 	var zip:URLLoader;
 
 	var versionNumber:String = '';
+	var downloadText:FlxText;
 
 	override public function create()
 	{
@@ -56,11 +61,7 @@ class PlayState extends FlxState
 		play = new FlxButton(FlxG.width / 2 - 200, 0, "PLAY", function()
 		{
 			#if sys
-			prepareInstall();
-			new FlxTimer().start(1, function(tmr:FlxTimer)
-			{
-				startGame();
-			});
+			prepareInstall(startGame);
 			#end
 		});
 		play.screenCenter(Y);
@@ -87,6 +88,13 @@ class PlayState extends FlxState
 		http.request();
 
 		zip = new URLLoader();
+		zip.dataFormat = BINARY;
+		zip.addEventListener(openfl.events.Event.COMPLETE, unzipGame);
+
+		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: READY', 20);
+		downloadText.alignment = RIGHT;
+		downloadText.y = FlxG.height - (downloadText.height + 5);
+		add(downloadText);
 
 		super.create();
 	}
@@ -100,15 +108,29 @@ class PlayState extends FlxState
 	#if sys
 	function startGame()
 	{
+		downloadText.text = 'Download Status: READY';
 		var exePath = Sys.programPath();
 		var exeDir = haxe.io.Path.directory(exePath);
 		var versionPath = haxe.io.Path.directory("/versions/");
 		var versionsPath = haxe.io.Path.directory(exeDir + versionPath + versionNumber);
+		try
+		{
+			// trace(versionsPath + '/Universe Engine 0.1.0/');
+			if (version.selectedLabel == "0.1.0")
+			{
+				FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				versionsPath += '/ue1';
+			}
+		}
+		catch (e:Dynamic)
+		{
+			trace(e);
+		}
+
 
 		var batch = "@echo on\n";
-		batch += "set \"versions=" + "versions" + "\"\r\n"; 
-		batch += "set \"versionNumber=" + versionNumber + "\"\r\n";
-		batch += "cd \"!versions!\"\"!versionNumber!\" UniverseEngine.exe\r\n";
+		batch += "setlocal enabledelayedexpansion\r\n";
+		batch += 'cd $versionsPath\r\n';
 		batch += "start UniverseEngine.exe\r\n";
 		//batch += "endlocal";
 
@@ -117,20 +139,31 @@ class PlayState extends FlxState
 		new Process(versionsPath + "/start.bat", []);
 	}
 
-	function prepareInstall()
+	// The following does a return on missing files after calling installGame() so that it can complete at the end of zipping files.
+	function prepareInstall(endFunction:Void->Void)
 	{
-		var fileEnd = 'zip';
-		online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/" + version.selectedLabel + '/FNF-Universe-Engine-windows.$fileEnd';
+		online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/" + version.selectedLabel + '/FNF-Universe-Engine-windows.zip';
+		if (version.selectedLabel == "0.1.0")
+			online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/0.1.0/Universe.Engine.0.1.0.zip";
 		trace("download url: " + online_url);
 
 		if (!FileSystem.exists("./versions/" + version.selectedLabel + "/"))
 		{
 			trace("version folder not found, creating the directory...");
 			FileSystem.createDirectory("./versions/" + version.selectedLabel + "/");
+			installGame();
+			return;
 		}
 		else
 		{
-			trace("version folder found");
+			if (!FileSystem.exists('./versions/${version.selectedLabel}/UniverseEngine.exe'))
+			{
+				trace('Likely malformed folder! Re-Installing');
+				installGame();
+				return;
+			}
+			// trace("version folder found");
+			endFunction();
 		}
 	}
 
@@ -139,7 +172,9 @@ class PlayState extends FlxState
 
 	public function installGame()
 	{
-		trace("starting download process...");
+		// trace("starting download process...");
+		// So we can tell the user that it's downloading.
+		downloadText.text = 'Download Status: Downloading';
 
 		final url:String = requestUrl(online_url);
 		if (url != null && url.indexOf('Not Found') != -1)
@@ -153,8 +188,40 @@ class PlayState extends FlxState
 		{
 			// trace('File size is small! Assuming it couldn\'t find the url!');
 			lime.app.Application.current.window.alert('Couldn\'t find the URL for the file! Cancelling download!');
+			downloadText.text = 'Download Status: READY';
 			return;
 		}
+	}
+
+	// Unironically referenced UE's updater lmao.
+	public function unzipGame(result:openfl.events.Event)
+	{
+		var path = './downloads/${version.selectedLabel}/';
+
+		if (!FileSystem.exists(path))
+		{
+			FileSystem.createDirectory(path);
+		}
+
+		// trace('Loading Bytes!');
+		var rawFILE:Bytes = cast zip.data;
+		if (rawFILE == null)
+		{
+			trace("It's fuckin' NULL");
+			return;
+		}
+		// trace('Saving Bytes!');
+		File.saveBytes(path + 'FNF-Universe-Engine-windows.zip', rawFILE);
+		// trace('UNZIPPING GAME');
+		downloadText.text = 'Download Status: Unzipping';
+		JSEZip.unzip(path + 'FNF-Universe-Engine-windows.zip', "./versions/" + version.selectedLabel + "/");
+		// trace('DONE');
+
+		// trace('Removing file and folder!');
+		FileSystem.deleteFile('$path/FNF-Universe-Engine-windows.zip');
+		FileSystem.deleteDirectory(path);
+
+		startGame();
 	}
 
 	public function requestUrl(url:String):String
