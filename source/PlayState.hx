@@ -129,7 +129,7 @@ class PlayState extends FlxState
 	function prepareInstall(endFunction:Void->Void)
 	{
 		online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/" + version.selectedLabel + '/FNF-Universe-Engine-windows.zip';
-		if (version.selectedLabel = "0.1.0")
+		if (version.selectedLabel == "0.1.0")
 			online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/0.1.0/Universe.Engine.0.1.0.zip";
 		trace("download url: " + online_url);
 
