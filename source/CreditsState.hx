@@ -66,7 +66,7 @@ class CreditsState extends FlxState
 				'uwenalil',
 				'uwenalil',
 				'Created the assets of the launcher',
-				'https://linktr.ee/uwenalil',
+				'https://uwenalil.netlify.app/uwenalil/links',
 				'008BFF'
 			],
 			[''],
