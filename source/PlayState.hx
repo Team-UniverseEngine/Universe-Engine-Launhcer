@@ -172,6 +172,7 @@ class PlayState extends FlxState
 		{
 			// trace('File size is small! Assuming it couldn\'t find the url!');
 			lime.app.Application.current.window.alert('Couldn\'t find the URL for the file! Cancelling download!');
+			downloadText.text = 'Download Status: READY';
 			return;
 		}
 	}
