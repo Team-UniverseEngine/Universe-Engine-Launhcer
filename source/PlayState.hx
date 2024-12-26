@@ -115,7 +115,7 @@ class PlayState extends FlxState
 		var versionsPath = haxe.io.Path.directory(exeDir + versionPath + versionNumber);
 		try
 		{
-			trace(versionsPath + '/Universe Engine 0.1.0/');
+			// trace(versionsPath + '/Universe Engine 0.1.0/');
 			if (version.selectedLabel == "0.1.0")
 			{
 				FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
@@ -158,11 +158,11 @@ class PlayState extends FlxState
 		{
 			if (!FileSystem.exists('./versions/${version.selectedLabel}/UniverseEngine.exe'))
 			{
-				trace('Can\'t find the EXE! trying installGame()!');
+				trace('Likely malformed folder! Re-Installing');
 				installGame();
 				return;
 			}
-			trace("version folder found");
+			// trace("version folder found");
 			endFunction();
 		}
 	}
@@ -172,7 +172,7 @@ class PlayState extends FlxState
 
 	public function installGame()
 	{
-		trace("starting download process...");
+		// trace("starting download process...");
 		// So we can tell the user that it's downloading.
 		downloadText.text = 'Download Status: Downloading';
 
@@ -203,21 +203,21 @@ class PlayState extends FlxState
 			FileSystem.createDirectory(path);
 		}
 
-		trace('Loading Bytes!');
+		// trace('Loading Bytes!');
 		var rawFILE:Bytes = cast zip.data;
 		if (rawFILE == null)
 		{
 			trace("It's fuckin' NULL");
 			return;
 		}
-		trace('Saving Bytes!');
+		// trace('Saving Bytes!');
 		File.saveBytes(path + 'FNF-Universe-Engine-windows.zip', rawFILE);
-		trace('UNZIPPING GAME');
+		// trace('UNZIPPING GAME');
 		downloadText.text = 'Download Status: Unzipping';
 		JSEZip.unzip(path + 'FNF-Universe-Engine-windows.zip', "./versions/" + version.selectedLabel + "/");
-		trace('DONE');
+		// trace('DONE');
 
-		trace('Removing file and folder!');
+		// trace('Removing file and folder!');
 		FileSystem.deleteFile('$path/FNF-Universe-Engine-windows.zip');
 		FileSystem.deleteDirectory(path);
 
