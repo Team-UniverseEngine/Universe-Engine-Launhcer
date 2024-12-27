@@ -51,6 +51,7 @@ class PlayState extends FlxState
 
 		bg = new FlxSprite(0, 0).loadGraphic("assets/images/bg.png");
 		bg.screenCenter();
+		bg.setGraphicSize(bg.width * 1.5);
 		add(bg);
 
 		progBar_bg = new FlxSprite(FlxG.width / 2, FlxG.height / 2 + 50).makeGraphic(500, 20, FlxColor.BLACK);
@@ -132,7 +133,14 @@ class PlayState extends FlxState
 			// trace(versionsPath + '/Universe Engine 0.1.0/');
 			if (version.selectedLabel == "0.1.0")
 			{
-				FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				try
+				{
+					FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
+				}
+				catch (e:Dynamic)
+				{
+					var yuh:String = 'yuh'; // lmao.
+				}
 				versionsPath += '/ue1';
 			}
 		}
@@ -147,9 +155,14 @@ class PlayState extends FlxState
 		batch += "start UniverseEngine.exe\r\n";
 		// batch += "endlocal";
 
-		File.saveContent(haxe.io.Path.join([versionsPath, "start.bat"]), batch);
+		var path:String = haxe.io.Path.join([versionsPath, "start.bat"]);
+		File.saveContent(path, batch);
 
 		new Process(versionsPath + "/start.bat", []);
+		var timer:FlxTimer = new FlxTimer().start(0.5, function(tmr:FlxTimer)
+		{
+			FileSystem.deleteFile(path); // Don't need it post launch.
+		});	
 	}
 
 	// The following does a return on missing files after calling installGame() so that it can complete at the end of zipping files.
@@ -158,7 +171,7 @@ class PlayState extends FlxState
 		online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/" + version.selectedLabel + '/FNF-Universe-Engine-windows.zip';
 		if (version.selectedLabel == "0.1.0")
 			online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/0.1.0/Universe.Engine.0.1.0.zip";
-		trace("download url: " + online_url);
+		// trace("download url: " + online_url);
 
 		if (!FileSystem.exists("./versions/" + version.selectedLabel + "/"))
 		{
@@ -169,7 +182,13 @@ class PlayState extends FlxState
 		}
 		else
 		{
-			if (!FileSystem.exists('./versions/${version.selectedLabel}/UniverseEngine.exe'))
+			var addition:String = '';
+			if (version.selectedLabel == '0.1.0')
+			{
+				addition = '/ue1';
+			}
+			var path = './versions/${version.selectedLabel + addition}/UniverseEngine.exe';
+			if (!FileSystem.exists(path))
 			{
 				trace('Likely malformed folder! Re-Installing');
 				installGame();

@@ -66,17 +66,17 @@ class CreditsState extends FlxState
 				'uwenalil',
 				'uwenalil',
 				'Created the assets of the launcher',
-				'https://linktr.ee/uwenalil',
+				'https://uwenalil.netlify.app/uwenalil/links',
 				'008BFF'
 			],
 			[''],
-			["Launcher PR's"],
+			["Launcher Help"], // Renamed the section lmao.
 			[
-				'CharGoldenYT',
+				'Char',
 				'char',
-				"Very epic PR's",
-				'https://bsky.app/profile/chargoldenyt.bsky.social',
-				'D18054'
+				"Hi I made 2 PR's to fix the launcher lmao",
+				'https://vschar-official.com',
+				'FF8800'
 			],
 		];
 
@@ -121,7 +121,7 @@ class CreditsState extends FlxState
 		add(descBox);
 
 		descText = new FlxText(50, FlxG.height + offsetThing - 25, 1180, "", 32);
-		descText.setFormat("", 32, FlxColor.WHITE, CENTER /*, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK*/);
+		descText.alignment = CENTER;
 		descText.scrollFactor.set();
 		// descText.borderSize = 2.4;
 		descBox.sprTracker = descText;
@@ -138,13 +138,13 @@ class CreditsState extends FlxState
 
 	override function update(elapsed:Float)
 	{
-		if (FlxG.sound.music.volume < 0.7)
+		/*if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
-		}
+		}*/
 
 		var accept = FlxG.keys.anyJustPressed([FlxKey.ENTER]);
-		var back = FlxG.keys.anyJustPressed([FlxKey.ESCAPE]);
+		var back = FlxG.keys.anyJustPressed([FlxKey.ESCAPE, FlxKey.BACKSPACE]);
 
 		if (!quitting)
 		{
