@@ -1,13 +1,9 @@
 package;
 
 import FlxUIDropDownMenuCustom;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.ui.FlxUISpriteButton;
-import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
 import flixel.util.FlxColor;
@@ -15,6 +11,7 @@ import flixel.util.FlxTimer;
 import haxe.Http;
 import lime.app.Application;
 import lime.utils.Bytes;
+import openfl.events.Event;
 import openfl.events.ProgressEvent;
 import openfl.net.URLLoader;
 import openfl.net.URLRequest;
@@ -42,6 +39,8 @@ class PlayState extends FlxState
 	var optionsButton:FlxSprite;
 	var versionFolder:FlxSprite;
 
+	public static var versionsFolderPath:String = './versions/';
+
 	public var online_url:String = "";
 
 	var progBar_bg:FlxSprite;
@@ -53,9 +52,11 @@ class PlayState extends FlxState
 
 	var versionNumber:String = '';
 	var downloadText:FlxText;
+	public static var directoryText:FlxText;
 
 	override public function create()
 	{
+		Prefs.initialize();
 		http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
 
 		FlxG.sound.playMusic(Paths.music("Universe Launcher Menu Music"), 0.7);
@@ -125,11 +126,28 @@ class PlayState extends FlxState
 		#if sys
 		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: READY', 15);
 		#else
-		downloadText = new FlxText(0, 0, FlxG.width, 'Download Status: FAILED', 15);
+		downloadText = new FlxText(0, 0, FlxG.width, 'Your system does NOT support the sys package, Downloads will not work.',
+			15); // Changed the message to make more sense lmao.
 		#end
 		downloadText.alignment = RIGHT;
+		downloadText.borderStyle = OUTLINE;
+		downloadText.borderColor = 0xFF000000;
+		downloadText.borderSize = 3;
 		downloadText.y = FlxG.height - (downloadText.height + 5);
 		add(downloadText);
+
+		#if sys
+		directoryText = new FlxText(0, 0, versionFolder.width - 100, 'Current Directory:\n$versionsFolderPath', 10);
+		#else
+		directoryText = new FlxText(0, 0, FlxG.width, '', 15);
+		#end
+		directoryText.alignment = RIGHT;
+		directoryText.borderStyle = OUTLINE;
+		directoryText.borderColor = 0xFF000000;
+		directoryText.borderSize = 3;
+		directoryText.x = versionFolder.x + 50;
+		directoryText.y = versionFolder.y + versionFolder.height;
+		add(directoryText);
 
 		super.create();
 	}
@@ -162,8 +180,13 @@ class PlayState extends FlxState
 			if (generalPressed)
 			{
 				#if sys
-				var fr:FileReference = new FileReference();
-				fr.browse();
+				var fr:openfl.filesystem.File = new openfl.filesystem.File();
+				fr.addEventListener(Event.SELECT, function(event:Event)
+				{
+					trace(fr.nativePath);
+					Prefs.versionsFolder = fr.nativePath;
+				});
+				fr.browseForDirectory('Choose a versions folder to use!');
 				#end
 			}
 		}
@@ -179,10 +202,7 @@ class PlayState extends FlxState
 	function startGame()
 	{
 		downloadText.text = 'Download Status: READY';
-		var exePath = Sys.programPath();
-		var exeDir = haxe.io.Path.directory(exePath);
-		var versionPath = haxe.io.Path.directory("/versions/");
-		var versionsPath = haxe.io.Path.directory(exeDir + versionPath + versionNumber);
+		var versionsPath = haxe.io.Path.directory(versionsFolderPath + versionNumber);
 		try
 		{
 			// trace(versionsPath + '/Universe Engine 0.1.0/');
@@ -228,10 +248,10 @@ class PlayState extends FlxState
 			online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/0.1.0/Universe.Engine.0.1.0.zip";
 		// trace("download url: " + online_url);
 
-		if (!FileSystem.exists("./versions/" + version.selectedLabel + "/"))
+		if (!FileSystem.exists(versionsFolderPath + version.selectedLabel + "/"))
 		{
 			trace("version folder not found, creating the directory...");
-			FileSystem.createDirectory("./versions/" + version.selectedLabel + "/");
+			FileSystem.createDirectory(versionsFolderPath + '/' + version.selectedLabel + "/");
 			installGame();
 			return;
 		}
@@ -242,7 +262,7 @@ class PlayState extends FlxState
 			{
 				addition = '/ue1';
 			}
-			var path = './versions/${version.selectedLabel + addition}/UniverseEngine.exe';
+			var path = '${versionsFolderPath + '/' + version.selectedLabel + addition}/UniverseEngine.exe';
 			if (!FileSystem.exists(path))
 			{
 				trace('Likely malformed folder! Re-Installing');
@@ -283,32 +303,36 @@ class PlayState extends FlxState
 	// Unironically referenced UE's updater lmao.
 	public function unzipGame(result:openfl.events.Event)
 	{
-		var path = './downloads/${version.selectedLabel}/';
-
-		if (!FileSystem.exists(path))
+		downloadText.text = 'Download Status: Unzipping, The launcher may freeze!'; // because stupid idiot me did a funny and forgot to change the text here.
+		var timer = new FlxTimer().start(1, function(tmr:FlxTimer) // Timer to give it a literal second to update the text.
 		{
-			FileSystem.createDirectory(path);
-		}
+			var path = './downloads/${version.selectedLabel}/';
 
-		// trace('Loading Bytes!');
-		var rawFILE:Bytes = cast zip.data;
-		if (rawFILE == null)
-		{
-			trace("It's fuckin' NULL");
-			return;
-		}
-		// trace('Saving Bytes!');
-		File.saveBytes(path + 'FNF-Universe-Engine-windows.zip', rawFILE);
-		// trace('UNZIPPING GAME');
-		downloadText.text = 'Download Status: Unzipping';
-		JSEZip.unzip(path + 'FNF-Universe-Engine-windows.zip', "./versions/" + version.selectedLabel + "/");
-		// trace('DONE');
+			if (!FileSystem.exists(path))
+			{
+				FileSystem.createDirectory(path);
+			}
 
-		// trace('Removing file and folder!');
-		FileSystem.deleteFile('$path/FNF-Universe-Engine-windows.zip');
-		FileSystem.deleteDirectory(path);
+			// trace('Loading Bytes!');
+			var rawFILE:Bytes = cast zip.data;
+			if (rawFILE == null)
+			{
+				trace("It's fuckin' NULL");
+				return;
+			}
+			// trace('Saving Bytes!');
+			File.saveBytes(path + 'FNF-Universe-Engine-windows.zip', rawFILE);
+			// trace('UNZIPPING GAME');
+			downloadText.text = 'Download Status: Unzipping';
+			JSEZip.unzip(path + 'FNF-Universe-Engine-windows.zip', versionsFolderPath + '/' + version.selectedLabel + "/");
+			// trace('DONE');
 
-		startGame();
+			// trace('Removing file and folder!');
+			FileSystem.deleteFile('$path/FNF-Universe-Engine-windows.zip');
+			FileSystem.deleteDirectory(path);
+
+			startGame();
+		});
 	}
 
 	public function requestUrl(url:String):String
