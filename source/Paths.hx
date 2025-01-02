@@ -19,6 +19,7 @@ import openfl.geom.Rectangle;
 import openfl.system.System;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+
 using StringTools;
 #if sys
 import sys.FileSystem;

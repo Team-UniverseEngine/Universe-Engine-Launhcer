@@ -220,6 +220,8 @@ class CreditsState extends FlxState
 
 	function changeSelection(change:Int = 0)
 	{
+		FlxG.sound.play(Paths.sound('scroll'), 1.0);
+
 		do
 		{
 			curSelected += change;

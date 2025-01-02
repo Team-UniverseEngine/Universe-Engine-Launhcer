@@ -4,6 +4,9 @@ import FlxUIDropDownMenuCustom;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.addons.display.FlxBackdrop;
+import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.ui.FlxUISpriteButton;
 import flixel.text.FlxText;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxButton;
@@ -20,6 +23,7 @@ import openfl.utils.ByteArray;
 using StringTools;
 
 #if sys
+import openfl.net.FileReference;
 import sys.FileSystem;
 import sys.io.File;
 import sys.io.Process;
@@ -28,10 +32,15 @@ import sys.io.Process;
 class PlayState extends FlxState
 {
 	var bg:FlxSprite;
+	var rings:FlxSprite;
+	var dots:FlxBackdrop;
+	var grid:FlxBackdrop;
 
-	var play:FlxButton;
+	var playButton:FlxSprite;
 	var version:FlxUIDropDownMenuCustom;
-	var credits:FlxButton;
+	var credits:FlxSprite;
+	var optionsButton:FlxSprite;
+	var versionFolder:FlxSprite;
 
 	public var online_url:String = "";
 
@@ -49,31 +58,42 @@ class PlayState extends FlxState
 	{
 		http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
 
-		bg = new FlxSprite(0, 0).loadGraphic("assets/images/bg.png");
+		FlxG.sound.playMusic(Paths.music("Universe Launcher Menu Music"), 0.7);
+
+		bg = new FlxSprite(0, 0).loadGraphic(Paths.image("bg"));
 		bg.screenCenter();
 		bg.setGraphicSize(bg.width * 1.5);
 		add(bg);
 
-		progBar_bg = new FlxSprite(FlxG.width / 2, FlxG.height / 2 + 50).makeGraphic(500, 20, FlxColor.BLACK);
-		progBar_bg.x -= 250;
-		progressBar = new FlxBar(progBar_bg.x + 5, progBar_bg.y + 5, LEFT_TO_RIGHT, Std.int(progBar_bg.width - 10), Std.int(progBar_bg.height - 10), this,
-			"entire_progress", 0, 100);
-		progressBar.numDivisions = 3000;
-		progressBar.createFilledBar(0xFF8F8F8F, 0xFFAD4E00);
+		rings = new FlxSprite(0, 0).loadGraphic(Paths.image("rings"));
+		rings.screenCenter();
+		add(rings);
 
-		play = new FlxButton(FlxG.width / 2 - 200, 0, "PLAY", function()
-		{
-			#if sys
-			prepareInstall(startGame);
-			#end
-		});
-		play.screenCenter(Y);
-		add(play);
+		grid = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true, 0x33FFFFFF, 0x0));
+		grid.velocity.set(20, 20);
+		grid.alpha = 1;
+		add(grid);
 
-		credits = new FlxButton(play.x + 200, play.y, "CREDITS", function()
-		{
-			FlxG.switchState(new CreditsState());
-		});
+		dots = new FlxBackdrop(Paths.image("blackDots"));
+		dots.velocity.set(10, 0);
+		dots.alpha = 0.6;
+		add(dots);
+
+		playButton = new FlxSprite(FlxG.width / 2 + 200, FlxG.height / 2 - 200, Paths.image("playButton"));
+		playButton.scale.set(0.8, 0.8);
+		add(playButton);
+
+		optionsButton = new FlxSprite(playButton.x - 10, playButton.y + 100, Paths.image("optionsButton"));
+		optionsButton.scale.set(0.8, 0.8);
+		optionsButton.alpha = 0.6;
+		add(optionsButton);
+
+		versionFolder = new FlxSprite(playButton.x - 10, playButton.y + 200, Paths.image("versionFolder"));
+		versionFolder.scale.set(0.8, 0.8);
+		versionFolder.alpha = 0.6;
+		add(versionFolder);
+
+		credits = new FlxSprite(0, 0).loadGraphic(Paths.image("credits"));
 		add(credits);
 
 		version = new FlxUIDropDownMenuCustom(0, 0, FlxUIDropDownMenuCustom.makeStrIdLabelArray(["Loading..."], true));
@@ -117,7 +137,42 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float)
 	{
 		versionNumber = "/" + version.selectedLabel + "/";
+		var generalMoved:Bool = (FlxG.mouse.justMoved);
+		var generalPressed:Bool = (FlxG.mouse.justPressed);
+		if (generalMoved)
+		{
+			playButton.alpha = 0.6;
+			optionsButton.alpha = 0.6;
+			versionFolder.alpha = 0.6;
+		}
+		if (pointerOverlaps(playButton))
+		{
+			playButton.alpha = 1;
+			if (generalPressed)
+			{
+				#if sys
+				prepareInstall(startGame);
+				FlxG.sound.play(Paths.sound("confirm"));
+				#end
+			}
+		}
+		if (pointerOverlaps(versionFolder))
+		{
+			versionFolder.alpha = 1;
+			if (generalPressed)
+			{
+				#if sys
+				var fr:FileReference = new FileReference();
+				fr.browse();
+				#end
+			}
+		}
 		super.update(elapsed);
+	}
+
+	function pointerOverlaps(obj:Dynamic)
+	{
+		return FlxG.mouse.overlaps(obj);
 	}
 
 	#if sys
@@ -162,7 +217,7 @@ class PlayState extends FlxState
 		var timer:FlxTimer = new FlxTimer().start(0.5, function(tmr:FlxTimer)
 		{
 			FileSystem.deleteFile(path); // Don't need it post launch.
-		});	
+		});
 	}
 
 	// The following does a return on missing files after calling installGame() so that it can complete at the end of zipping files.
