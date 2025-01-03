@@ -84,12 +84,12 @@ class PlayState extends FlxState
 		playButton.scale.set(0.8, 0.8);
 		add(playButton);
 
-		optionsButton = new FlxSprite(playButton.x - 10, playButton.y + 100, Paths.image("optionsButton"));
+		optionsButton = new FlxSprite(playButton.x, playButton.y + 100, Paths.image("optionsButton"));
 		optionsButton.scale.set(0.8, 0.8);
 		optionsButton.alpha = 0.6;
 		add(optionsButton);
 
-		versionFolder = new FlxSprite(playButton.x - 10, playButton.y + 200, Paths.image("versionFolder"));
+		versionFolder = new FlxSprite(playButton.x, playButton.y + 200, Paths.image("versionFolder"));
 		versionFolder.scale.set(0.8, 0.8);
 		versionFolder.alpha = 0.6;
 		add(versionFolder);
