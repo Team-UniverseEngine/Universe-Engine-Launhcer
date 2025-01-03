@@ -1,3 +1,6 @@
+/*
+ * Guys it would be so funny if I made this an easter egg, but as of now, idk why this is still here lmao.
+ */
 package;
 
 import flash.text.TextField;
