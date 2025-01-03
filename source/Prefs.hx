@@ -34,7 +34,7 @@ class Prefs
 
 	static function set_muteSound(value:Bool):Bool
 	{
-		FlxG.sound.muted = value;
+		//FlxG.sound.muted = value;
 		muteSound = value;
 
 		if (isInitialized) // This is probs f'ing stupid to do but 🖕/j
@@ -85,7 +85,7 @@ class Prefs
 		#else
 		set_versionsFolder('./versions/');
 		#end
-		FlxG.sound.playMusic(Paths.music('this_prevents_the_game_from_crashing'), 0);
+		//FlxG.sound.playMusic(Paths.music('this_prevents_the_game_from_crashing'), 0);
 
 		isInitialized = true;
 		load();
