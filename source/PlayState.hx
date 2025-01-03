@@ -248,7 +248,7 @@ class PlayState extends FlxState
 			online_url = "https://github.com/VideoBotYT/Universe-Engine/releases/download/0.1.0/Universe.Engine.0.1.0.zip";
 		// trace("download url: " + online_url);
 
-		if (!FileSystem.exists(versionsFolderPath + version.selectedLabel + "/"))
+		if (!FileSystem.exists(versionsFolderPath + '/' + version.selectedLabel + "/"))
 		{
 			trace("version folder not found, creating the directory...");
 			FileSystem.createDirectory(versionsFolderPath + '/' + version.selectedLabel + "/");
