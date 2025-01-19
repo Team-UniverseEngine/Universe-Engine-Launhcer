@@ -39,6 +39,8 @@ class PlayState extends FlxState
 	var optionsButton:FlxSprite;
 	var versionFolder:FlxSprite;
 
+	public static var versionString:String = "0.2.0";
+
 	public static var versionsFolderPath:String = './versions/';
 
 	public var online_url:String = "";
@@ -52,6 +54,7 @@ class PlayState extends FlxState
 
 	var versionNumber:String = '';
 	var downloadText:FlxText;
+
 	public static var directoryText:FlxText;
 
 	override public function create()
@@ -148,6 +151,11 @@ class PlayState extends FlxState
 		directoryText.x = versionFolder.x + 50;
 		directoryText.y = versionFolder.y + versionFolder.height;
 		add(directoryText);
+
+		var versionShit:FlxText = new FlxText(12, FlxG.height - 52, 0, "Launcher v: " + versionString, 12);
+		versionShit.scrollFactor.set();
+		versionShit.setFormat(Paths.font('gaposiss.ttf'), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(versionShit);
 
 		super.create();
 	}
