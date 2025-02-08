@@ -13,6 +13,9 @@ class Options extends BaseOptionsMenu
 			false);
 		addOption(option);
 
+		var option:Option = new Option("Mute Sound", "When enabled the sound shall be muted.", "muteSound", "bool", false);
+		addOption(option);
+
 		super();
 	}
 

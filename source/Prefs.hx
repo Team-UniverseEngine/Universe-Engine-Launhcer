@@ -2,23 +2,18 @@ package;
 
 import flixel.FlxG;
 
-/**
- * Alright, the basics are here for preferences stuff.
- */
-class Prefs
+class Data
 {
-	public static var versionsFolder(default, set):String;
-	public static var snapshot:Bool = false;
+	public var versionsFolder(default, set):String;
+	public var snapshot:Bool = false;
 
-	static var isInitialized:Bool = false;
-
-	static function set_versionsFolder(folder:String):String
+	function set_versionsFolder(folder:String):String
 	{
 		PlayState.versionsFolderPath = folder;
 		versionsFolder = folder;
 
-		if (isInitialized) // This is probs f'ing stupid to do but 🖕/j
-			save();
+		if (Prefs.isInitialized) // This is probs f'ing stupid to do but 🖕/j
+			Prefs.save();
 
 		if (PlayState.directoryText != null)
 			PlayState.directoryText.text = 'Current Directory:\n$folder';
@@ -31,15 +26,19 @@ class Prefs
 	 * 
 	 * NOT IMPLEMENTED
 	 */
-	public static var muteSound(default, set):Bool = false;
+	public var muteSound(default, set):Bool = false;
 
-	static function set_muteSound(value:Bool):Bool
+	function set_muteSound(value:Bool):Bool
 	{
-		//FlxG.sound.muted = value;
+		try
+		{
+			FlxG.sound.muted = value;
+		}
+		catch (e:Dynamic) {}
 		muteSound = value;
 
-		if (isInitialized) // This is probs f'ing stupid to do but 🖕/j
-			save();
+		if (Prefs.isInitialized) // This is probs f'ing stupid to do but 🖕/j
+			Prefs.save();
 
 		return value;
 	}
@@ -49,33 +48,49 @@ class Prefs
 	 * 
 	 * NOT IMPLEMENTED
 	 */
-	public static var nameBeforeVersion:String = '';
+	public var nameBeforeVersion:String = '';
+
+	public function new()
+	{
+		#if sys
+		set_versionsFolder(haxe.io.Path.directory(haxe.io.Path.directory(Sys.programPath()) + "/versions/"));
+		#else
+		set_versionsFolder('./versions/');
+		#end
+	}
+}
+
+/**
+ * Alright, the basics are here for preferences stuff.
+ */
+class Prefs
+{
+	// Swapping it to Psych 0.7+ like data management because it's being fucky-wucky.
+	public static var data:Data = null;
+	public static var defaultData:Data = null;
+
+	public static var isInitialized:Bool = false;
 
 	public static function load():Void
 	{
-		if (FlxG.save.data.vf != null)
+		if (data == null)
+			data = new Data();
+		if (defaultData == null)
+			defaultData = new Data();
+
+		for (key in Reflect.fields(data))
 		{
-			set_versionsFolder(FlxG.save.data.vf);
+			Reflect.setField(data, key, Reflect.field(FlxG.save.data, key));
 		}
-		if (FlxG.save.data.ms != null)
-		{
-			muteSound = FlxG.save.data.ms;
-		}
-		if (FlxG.save.data.nbv != null)
-		{
-			nameBeforeVersion = FlxG.save.data.nbv;
-		}
-		if (FlxG.save.data.mute != null) {}
-		if (FlxG.save.data.snapshot != null)
-			snapshot = FlxG.save.data.snapshot;
+		isInitialized = true;
 	}
 
 	public static function save():Void
 	{
-		FlxG.save.data.vf = versionsFolder;
-		FlxG.save.data.ms = muteSound;
-		FlxG.save.data.nbv = nameBeforeVersion;
-		FlxG.save.data.snapshot = snapshot;
+		for (key in Reflect.fields(data))
+		{
+			Reflect.setField(FlxG.save.data, key, Reflect.field(data, key));
+		}
 
 		FlxG.save.flush();
 	}
@@ -83,15 +98,6 @@ class Prefs
 	public static function initialize():Void
 	{
 		FlxG.save.bind('UE_Launcher', 'Video_Bot'); // PREFS NEED A HOME LMAO
-
-		#if sys
-		set_versionsFolder(haxe.io.Path.directory(haxe.io.Path.directory(Sys.programPath()) + "/versions/"));
-		#else
-		set_versionsFolder('./versions/');
-		#end
-		//FlxG.sound.playMusic(Paths.music('this_prevents_the_game_from_crashing'), 0);
-
-		isInitialized = true;
 		load();
 	}
 }
