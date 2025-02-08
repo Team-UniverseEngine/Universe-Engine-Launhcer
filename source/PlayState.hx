@@ -65,7 +65,7 @@ class PlayState extends FlxState
 	{
 		Prefs.initialize();
 		if (Prefs.snapshot)
-			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionListSnaps.txt");
+			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionListSnaps");
 		else
 			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
 
