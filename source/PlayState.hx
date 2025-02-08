@@ -1,6 +1,7 @@
 package;
 
 import FlxUIDropDownMenuCustom;
+import flixel.FlxSubState;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.ui.FlxUISpriteButton;
@@ -16,6 +17,7 @@ import openfl.events.ProgressEvent;
 import openfl.net.URLLoader;
 import openfl.net.URLRequest;
 import openfl.utils.ByteArray;
+import options.OptionState;
 
 using StringTools;
 
@@ -39,7 +41,7 @@ class PlayState extends FlxState
 	var optionsButton:FlxSprite;
 	var versionFolder:FlxSprite;
 
-	public static var versionString:String = "0.2.0";
+	public static var versionString:String = "0.3.0";
 
 	public static var versionsFolderPath:String = './versions/';
 
@@ -55,12 +57,17 @@ class PlayState extends FlxState
 	var versionNumber:String = '';
 	var downloadText:FlxText;
 
+	var refreshList:FlxButton;
+
 	public static var directoryText:FlxText;
 
 	override public function create()
 	{
 		Prefs.initialize();
-		http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
+		if (Prefs.snapshot)
+			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionListSnaps.txt");
+		else
+			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
 
 		FlxG.sound.playMusic(Paths.music("Universe Launcher Menu Music"), 0.7);
 
@@ -119,6 +126,26 @@ class PlayState extends FlxState
 		}
 
 		http.request();
+
+		refreshList = new FlxButton(version.x, version.y - 20, "reload", function()
+		{
+			http.onData = function(data:String)
+			{
+				var versions = data.split("\n").filter(function(line) return line.trim() != "");
+				remove(version);
+				version = new FlxUIDropDownMenuCustom(0, 0, FlxUIDropDownMenuCustom.makeStrIdLabelArray(versions, true));
+				version.screenCenter();
+				add(version);
+			}
+
+			http.onError = function(error)
+			{
+				trace('Error fetching version list: $error');
+			}
+
+			http.request();
+		});
+		add(refreshList);
 
 		#if sys
 		zip = new URLLoader();
@@ -196,6 +223,14 @@ class PlayState extends FlxState
 				});
 				fr.browseForDirectory('Choose a versions folder to use!');
 				#end
+			}
+		}
+		if (pointerOverlaps(optionsButton))
+		{
+			optionsButton.alpha = 1;
+			if (generalPressed)
+			{
+				FlxG.switchState(new OptionsState());
 			}
 		}
 		super.update(elapsed);

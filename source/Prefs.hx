@@ -8,6 +8,7 @@ import flixel.FlxG;
 class Prefs
 {
 	public static var versionsFolder(default, set):String;
+	public static var snapshot:Bool = false;
 
 	static var isInitialized:Bool = false;
 
@@ -65,6 +66,8 @@ class Prefs
 			nameBeforeVersion = FlxG.save.data.nbv;
 		}
 		if (FlxG.save.data.mute != null) {}
+		if (FlxG.save.data.snapshot != null)
+			snapshot = FlxG.save.data.snapshot;
 	}
 
 	public static function save():Void
@@ -72,6 +75,7 @@ class Prefs
 		FlxG.save.data.vf = versionsFolder;
 		FlxG.save.data.ms = muteSound;
 		FlxG.save.data.nbv = nameBeforeVersion;
+		FlxG.save.data.snapshot = snapshot;
 
 		FlxG.save.flush();
 	}
