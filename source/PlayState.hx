@@ -64,7 +64,7 @@ class PlayState extends FlxState
 	override public function create()
 	{
 		Prefs.initialize();
-		if (Prefs.snapshot)
+		if (Prefs.data.snapshot)
 			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionListSnaps");
 		else
 			http = new Http("https://raw.githubusercontent.com/VideoBotYT/Universe-Engine/refs/heads/main/versionList.txt");
@@ -219,7 +219,7 @@ class PlayState extends FlxState
 				fr.addEventListener(Event.SELECT, function(event:Event)
 				{
 					trace(fr.nativePath);
-					Prefs.versionsFolder = fr.nativePath;
+					Prefs.data.versionsFolder = fr.nativePath;
 				});
 				fr.browseForDirectory('Choose a versions folder to use!');
 				#end
@@ -255,10 +255,7 @@ class PlayState extends FlxState
 				{
 					FileSystem.rename(versionsPath + '/Universe Engine 0.1.0/', versionsPath + '/ue1');
 				}
-				catch (e:Dynamic)
-				{
-					var yuh:String = 'yuh'; // lmao.
-				}
+				catch (e:Dynamic) {}
 				versionsPath += '/ue1';
 			}
 		}

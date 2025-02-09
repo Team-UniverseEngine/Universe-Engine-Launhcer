@@ -74,7 +74,6 @@ class OptionsState extends FlxState
 		selectorRight = new Alphabet(0, 0, '<', true);
 		add(selectorRight);
 		changeSelection();
-		Prefs.save();
 		super.create();
 	}
 
