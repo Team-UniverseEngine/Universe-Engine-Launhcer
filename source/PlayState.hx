@@ -41,7 +41,7 @@ class PlayState extends FlxState
 	var optionsButton:FlxSprite;
 	var versionFolder:FlxSprite;
 
-	public static var versionString:String = "0.4.0";
+	public static var versionString:String = "0.4.2";
 
 	public static var versionsFolderPath:String = './versions/';
 

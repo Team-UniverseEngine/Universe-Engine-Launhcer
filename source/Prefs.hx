@@ -26,22 +26,6 @@ class Data
 	 * 
 	 * NOT IMPLEMENTED
 	 */
-	public var muteSound(default, set):Bool = false;
-
-	function set_muteSound(value:Bool):Bool
-	{
-		try
-		{
-			FlxG.sound.muted = value;
-		}
-		catch (e:Dynamic) {}
-		muteSound = value;
-
-		if (Prefs.isInitialized) // This is probs f'ing stupid to do but 🖕/j
-			Prefs.save();
-
-		return value;
-	}
 
 	/**
 	 * This determines what goes before the version string e.g. "Universe Engine 5.5.0".
