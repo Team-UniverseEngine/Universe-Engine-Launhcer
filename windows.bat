@@ -1,3 +1,0 @@
-cls
-
-lime test windows
