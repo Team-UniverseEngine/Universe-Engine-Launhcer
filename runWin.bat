@@ -1,3 +1,0 @@
-cls
-
-lime run windows
